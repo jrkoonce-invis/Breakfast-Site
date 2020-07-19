@@ -8,22 +8,31 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jrkoonce-invis/BreakfastSite/Breakfast-Site/handlers"
+	"github.com/sirupsen/logrus"
 )
 
 const port = ":9090"
 
-func main() {
-	// Create the gorilla servemux
-	mux := mux.NewRouter()
+func init() {
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
+}
 
-	// Create a subrouter specifically for the REST api calls
+func main() {
+	// Create the gorilla servemux and universal logger (sirupsen/logrus)
+	mux := mux.NewRouter()
+	log := logrus.New()
+
+	// Create the handlers
+	requestManager := handlers.CreateHandlers(log)
+
+	// Create a subrouter specifically for the REST api calls and register them
 	itemsManager := mux.PathPrefix("/items").Subrouter()
 
-	// Setting up the REST handlers
-	itemsManager.HandleFunc("", handlers.GetItems).Methods("GET")
-	itemsManager.HandleFunc("", handlers.PostItem).Methods("POST")
-	itemsManager.HandleFunc("/{id}", handlers.PutItem).Methods("PUT")
-	itemsManager.HandleFunc("/{id}", handlers.DeleteItem).Methods("DELETE")
+	itemsManager.HandleFunc("", requestManager.GetItems).Methods("GET")
+	itemsManager.HandleFunc("", requestManager.PostItem).Methods("POST")
+	itemsManager.HandleFunc("/{id}", requestManager.PutItem).Methods("PUT")
+	itemsManager.HandleFunc("/{id}", requestManager.DeleteItem).Methods("DELETE")
 
 	// Create a new server
 	server := http.Server{
@@ -35,10 +44,10 @@ func main() {
 
 	err := server.ListenAndServe()
 	if err != nil {
-		fmt.Printf("Error starting server: %s", err)
-		os.Exit(1)
+		log.WithFields(logrus.Fields{
+			"err": err,
+		}).Fatal("Server failed to start")
 	}
 
-	fmt.Println("Starting server on port", port)
-
+	log.Info(fmt.Sprintf("Server started on port %s", port))
 }
