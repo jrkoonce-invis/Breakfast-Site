@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -11,7 +13,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const port = ":9090"
+const (
+	_port = ":9090"
+	_wait = 10 * time.Second
+)
 
 func init() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
@@ -36,18 +41,41 @@ func main() {
 
 	// Create a new server
 	server := http.Server{
-		Addr:         port,
+		Addr:         _port,
 		Handler:      mux,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
-	err := server.ListenAndServe()
+	go func() {
+		err := server.ListenAndServe()
+		if err != nil {
+			log.WithFields(logrus.Fields{
+				"err": err,
+			}).Fatal("Server failed to start")
+		}
+
+		log.Info(fmt.Sprintf("Server started on port %s", _port))
+	}()
+
+	// Create channel for shutdown signals
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+
+	// Recieve shutdown signals
+	sig := <-stop
+	ctx, cancel := context.WithTimeout(context.Background(), _wait)
+	defer cancel()
+
+	err := server.Shutdown(ctx)
 	if err != nil {
 		log.WithFields(logrus.Fields{
-			"err": err,
-		}).Fatal("Server failed to start")
+			"signal": sig,
+			"err":    err,
+		}).Warn("Error shutting down server")
+	} else {
+		log.WithFields(logrus.Fields{
+			"signal": sig,
+		}).Info("Server gracefully shutdown")
 	}
-
-	log.Info(fmt.Sprintf("Server started on port %s", port))
 }
