@@ -14,13 +14,23 @@ import (
 )
 
 const (
-	_port = ":9090"
-	_wait = 10 * time.Second
+	_port       = ":9090"
+	_wait       = 10 * time.Second
+	_enviroment = "development"
 )
 
 func init() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetOutput(os.Stdout)
+
+	switch _enviroment {
+	case "development":
+		logrus.SetLevel(logrus.InfoLevel)
+	case "production":
+		logrus.SetLevel(logrus.ErrorLevel)
+	default:
+		logrus.Fatal("Enviroment variable (_enviroment) no set")
+	}
 }
 
 func main() {
