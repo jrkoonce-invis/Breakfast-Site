@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/jrkoonce-invis/BreakfastSite/Breakfast-Site/handlers"
+	"github.com/jrkoonce-invis/Breakfast-Site/Api/handlers"
 	"github.com/sirupsen/logrus"
 )
 
 const (
-	_port       = ":9090"
+	_port       = ":3000"
 	_wait       = 10 * time.Second
 	_enviroment = "development"
 )

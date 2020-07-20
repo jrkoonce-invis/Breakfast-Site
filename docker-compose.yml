@@ -1,0 +1,23 @@
+version: "3"
+services:
+    server:
+        build: ./Api
+        expose:
+            - ${API_SERVER_PORT}
+        ports:
+            - ${API_SERVER_PORT}:${API_SERVER_PORT}
+        volumes: 
+            - "./Api:/dist/server"
+        command: go run main.go
+    client:
+        build: ./Frontend
+        expose:
+            - ${CLIENT_SERVER_PORT}
+        ports:
+            - ${CLIENT_SERVER_PORT}:${CLIENT_SERVER_PORT}
+        volumes: 
+            - "./Frontend:/dist/client"
+        links:
+            - server
+        command: go run main.go
+    

@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/jrkoonce-invis/BreakfastSite/Breakfast-Site/data"
+	"github.com/jrkoonce-invis/Breakfast-Site/Api/data"
 	"github.com/sirupsen/logrus"
 )
 

@@ -1,4 +1,4 @@
-module github.com/jrkoonce-invis/BreakfastSite/Breakfast-Site
+module github.com/jrkoonce-invis/Breakfast-Site/Api
 
 go 1.14
 
