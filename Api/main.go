@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	muxHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jrkoonce-invis/Breakfast-Site/Api/handlers"
 	"github.com/sirupsen/logrus"
@@ -49,10 +50,13 @@ func main() {
 	itemsManager.HandleFunc("/{id}", requestManager.PutItem).Methods("PUT")
 	itemsManager.HandleFunc("/{id}", requestManager.DeleteItem).Methods("DELETE")
 
+	// CORS
+	corsObj := muxHandlers.CORS(muxHandlers.AllowedOrigins([]string{"*"}))
+
 	// Create a new server
 	server := http.Server{
 		Addr:         _port,
-		Handler:      mux,
+		Handler:      corsObj(mux),
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}

@@ -2,18 +2,19 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 )
 
 func main() {
-	http.HandleFunc("/", getRouter)
+	frontend := http.FileServer(http.Dir("./src"))
+	http.Handle("/", frontend)
 
-	log.Fatal(http.ListenAndServe(":9090", nil))
 	fmt.Println("Server running on port :9090")
+	log.Fatal(http.ListenAndServe(":9090", nil))
 }
 
+/*
 func getRouter(rw http.ResponseWriter, req *http.Request) {
 	resp, err := http.Get("http://server:3000/items")
 	if err != nil {
@@ -28,4 +29,4 @@ func getRouter(rw http.ResponseWriter, req *http.Request) {
 
 	fmt.Fprint(rw, string(body))
 	fmt.Fprint(rw, "YAYYY!!")
-}
+}*/

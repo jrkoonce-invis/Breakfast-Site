@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Breakfast Site</title>
+  <script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+  <div id="app" :key="dataReady">
+    <div v-if="dataReady">
+        {{ data }}
+      </div>
+      <div v-else>
+        Loading...
+      </div>
+  </div>
+
+  <script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            data: "",
+            dataReady: false
+        },
+        methods: {
+            readyApp: function (res) {
+                this.data = res
+                this.dataReady = true
+            }
+        }
+    })
+
+    fetch('http://localhost:3000/items')
+        .then(response => response.json())
+        .then(res => {
+            app.readyApp(res)
+        });
+  </script>
+</body>
+</html>
